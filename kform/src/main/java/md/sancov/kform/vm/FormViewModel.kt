@@ -12,6 +12,9 @@ import md.sancov.kform.DataSource
 import md.sancov.kform.Form
 import md.sancov.kform.RowType
 import md.sancov.kform.RowsState
+import md.sancov.kform.ex.*
+import md.sancov.kform.model.EnumModel
+import md.sancov.kform.model.toEnum
 
 abstract class FormViewModel<Type: RowType>: ViewModel() {
     private val form = Form<Type>()
@@ -30,44 +33,9 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
     }
 
-    fun setDataSource(dataSource: DataSource<Type>) {
-        form.setDataSource(dataSource)
+    fun<T: DataSource<Type>> set(dataSource: T, lambda: T.() -> Unit) {
+        form.setDataSource(dataSource.apply(lambda))
     }
-
-
-//    fun<V> set(type: T, value: V?) {
-//        form[type] = value
-//    }
-//
-    fun<V> set(type: Type, lambda: suspend () -> V?) = viewModelScope.launch(Dispatchers.IO) {
-//        val value = try {
-//            lambda()
-//        } catch (_: Throwable) {
-//            null
-//        }
-//
-//        form.also {
-//            it[row] = value
-//            it.refresh()
-//        }
-    }
-//
-//    fun<V> value(type: T): V? {
-//        return form[type]
-//    }
-//
-//    fun<V> value(type: T, default: V): V {
-//        return form[type] ?: default
-//    }
-//
-//    inline fun<reified V: Enum<V>> enum(type: T): V? {
-//        return value<EnumModel>(type)?.toEnum<V>()
-//    }
-//
-//    inline fun<reified V: Enum<V>> enum(type: T, default: V): V {
-//        return enum<V>(type) ?: default
-//    }
-
 
     fun refresh() {
         form.refresh()
@@ -75,5 +43,37 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
 
     fun reset() {
         form.reset()
+    }
+
+    fun<Value> set(type: Type, value: Value?) {
+        form[type] = value
+    }
+
+    fun<Value> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
+        val value = try {
+            lambda()
+        } catch (_: Throwable) {
+            null
+        }
+
+        form.also {
+            it[type] = value
+            it.refresh()
+        }
+    }
+
+    fun<Value> value(type: Type): Value? {
+        return form[type]
+    }
+
+    fun<Value> value(type: Type, default: Value): Value {
+        return form[type] ?: default
+    }
+
+    inline fun<reified Value: Enum<Value>> enum(type: Type): Value? {
+        return value<EnumModel>(type)?.toEnum<Value>()
+    }
+    inline fun<reified Value: Enum<Value>> enum(type: Type, default: Value): Value {
+        return enum<Value>(type) ?: default
     }
 }

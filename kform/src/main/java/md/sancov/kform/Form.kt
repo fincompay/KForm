@@ -15,11 +15,6 @@ class Form<T : RowType> {
 
     private var source: DataSource<T>? = null
 
-
-    // on reset -> clear
-    // |
-    // v
-
     val items: Flow<RowsState> = reset
         .filterNotNull()
         .mapNotNull { source }
@@ -30,43 +25,34 @@ class Form<T : RowType> {
 
             emit(State.Loading<List<Row>>())
 
-            Log.i("FORM","ACTION: ON SETUP")
-//            source.onSetup(this@Form)
+            Log.i("FORM","ACTION: ON PREPARE")
+
+            source.prepare(this@Form)
 
             Log.i("FORM","ACTION: BINDINGS")
 
-//            source.binder.resolve()
+            val store = source.store
+            val binder = source.binder ?: throw Throwable("Binder isn't specified")
 
-            // source setup
-
-                // val binder = source.binder
-
-                // val listeners = source.listeners
-
-                // val triggers = source.triggers
-
-                //val rows = flows.filterNotNull().merge().map {
-                // val types = source.types
-//                     val rows = types.invoke(store).map { binder.resolve(it, store) }
-//                     State.Success(rows)
-//               }
-
-
-
+            val rows = combine(listOfNotNull(source.triggers, refresh)) { _ ->
                 Log.i("FORM","STATE: EMIT SUCCESS")
-                emit(State.Success(emptyList()))
 
-//            emit(State.Loading())
-//            store.reset()
+                val rows = source.types().map { binder.resolve(it, store) }
 
-//            source.de
-
-                // listeners = Unit
-                // triggerables = refresh / triggers = emit(State.Success(rows))
+                State.Success(rows)
             }
-            .catch {
-//                emit(State.Error(it))
-            }
+//
+//            val flows = combine(source.listeners ?: emptyFlow(), rows) { _, second ->
+//                Log.i("FORM","STATE: LISTENERS AND TRIGGERS")
+//
+//                second
+//            }
+
+            emitAll(rows)
+        }
+        .catch {
+            emit(State.Error(it))
+        }
 
     fun setDataSource(source: DataSource<T>) {
         this.source = source
