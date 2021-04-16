@@ -1,5 +1,7 @@
 package md.sancov.kform
 
-interface RowType {
+import android.os.Parcelable
+
+interface RowType: Parcelable {
     val id: Int
 }

@@ -9,9 +9,9 @@ import md.sancov.kform.row.ValueRow
 class TypeBinder<Type: RowType>: Binder<Type> {
     private val bindings = mutableMapOf<Type, Binding<*, *, *, Type>>()
 
-    fun<Row: ValueRow<Params, Model>, Params, Model> bind(
+    fun<R: ValueRow<Params, Model>, Params, Model> bind(
         vararg types: Type,
-        factory: RowFactory<Row, Params, Model>,
+        factory: RowFactory<R, Params, Model>,
         params: (Type, Store<Type>) -> Params,
     ) {
         val binding = Binding(factory, params)

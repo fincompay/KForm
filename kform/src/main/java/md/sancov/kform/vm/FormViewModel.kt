@@ -1,6 +1,5 @@
 package md.sancov.kform.vm
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -13,10 +12,9 @@ import md.sancov.kform.DataSource
 import md.sancov.kform.Form
 import md.sancov.kform.RowType
 import md.sancov.kform.RowsState
-import md.sancov.utils.State
 
-abstract class FormViewModel<T: RowType>(state: SavedStateHandle): ViewModel() {
-    private val form = Form<T>(state)
+abstract class FormViewModel<Type: RowType>: ViewModel() {
+    private val form = Form<Type>()
 
     private val _rows = MutableStateFlow<RowsState?>(null)
 
@@ -26,21 +24,22 @@ abstract class FormViewModel<T: RowType>(state: SavedStateHandle): ViewModel() {
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            form.rows.collect {
+            form.items.collect {
                 _rows.value = it
             }
         }
     }
 
-//    fun setDataSource(source: DataSource) {
-//
-//    }
+    fun setDataSource(dataSource: DataSource<Type>) {
+        form.setDataSource(dataSource)
+    }
+
 
 //    fun<V> set(type: T, value: V?) {
 //        form[type] = value
 //    }
 //
-//    fun<V> set(row: T, lambda: suspend () -> V?) = viewModelScope.launch(Dispatchers.IO) {
+    fun<V> set(type: Type, lambda: suspend () -> V?) = viewModelScope.launch(Dispatchers.IO) {
 //        val value = try {
 //            lambda()
 //        } catch (_: Throwable) {
@@ -51,7 +50,7 @@ abstract class FormViewModel<T: RowType>(state: SavedStateHandle): ViewModel() {
 //            it[row] = value
 //            it.refresh()
 //        }
-//    }
+    }
 //
 //    fun<V> value(type: T): V? {
 //        return form[type]
@@ -68,10 +67,7 @@ abstract class FormViewModel<T: RowType>(state: SavedStateHandle): ViewModel() {
 //    inline fun<reified V: Enum<V>> enum(type: T, default: V): V {
 //        return enum<V>(type) ?: default
 //    }
-//
-    fun reload(dataSource: DataSource<T>) {
-        form.setDataSource(dataSource)
-    }
+
 
     fun refresh() {
         form.refresh()

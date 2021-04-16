@@ -10,18 +10,18 @@ import kotlin.reflect.KClass
 class KeyBinder<Type: RowType>: Binder<Type> {
     private val bindings = mutableMapOf<String, Binding<*, *, *, Type>>()
 
-    fun<Row: ValueRow<Params, Model>, Params, Model> bind(
+    fun<R: ValueRow<Params, Model>, Params, Model> bind(
         clazz: KClass<out Type>,
-        factory: RowFactory<Row, Params, Model>,
+        factory: RowFactory<R, Params, Model>,
         params: (Type, Store<Type>) -> Params
     ) {
         val key = clazz.qualifiedName ?: throw Throwable("Local or anonymous types are not allowed")
         bind(key, factory, params)
     }
 
-    fun<Row: ValueRow<Params, Model>, Params, Model> bind(
+    fun<R: ValueRow<Params, Model>, Params, Model> bind(
         key: String,
-        factory: RowFactory<Row, Params, Model>,
+        factory: RowFactory<R, Params, Model>,
         params: (Type, Store<Type>) -> Params
     ) {
         bindings[key] = Binding(factory, params)

@@ -9,25 +9,49 @@ import java.util.*
 
 typealias RowsState = State<List<Row>>
 
-class Form<T : RowType>(state: SavedStateHandle) {
+class Form<T : RowType> {
     private val reset = MutableStateFlow<Date?>(null)
     private val refresh = MutableStateFlow<Date?>(null)
 
     private var source: DataSource<T>? = null
 
-    val rows: Flow<RowsState> = reset
-            .filterNotNull()
-            .mapNotNull { source }
-            .transform { source ->
-                Log.i("FORM","ACTION: RESET")
 
-                Log.i("FORM","STATE: EMIT LOADING")
-                emit(State.Loading<List<Row>>())
+    // on reset -> clear
+    // |
+    // v
 
-                //            emitAll(flows.filterNotNull().merge().map {
-//                val rows = types.invoke(store).map { resolver.resolve(it, store) }
-//                State.Success(rows)
-//            })
+    val items: Flow<RowsState> = reset
+        .filterNotNull()
+        .mapNotNull { source }
+        .transform { source ->
+            Log.i("FORM","ACTION: RESET")
+
+            Log.i("FORM","STATE: EMIT LOADING")
+
+            emit(State.Loading<List<Row>>())
+
+            Log.i("FORM","ACTION: ON SETUP")
+//            source.onSetup(this@Form)
+
+            Log.i("FORM","ACTION: BINDINGS")
+
+//            source.binder.resolve()
+
+            // source setup
+
+                // val binder = source.binder
+
+                // val listeners = source.listeners
+
+                // val triggers = source.triggers
+
+                //val rows = flows.filterNotNull().merge().map {
+                // val types = source.types
+//                     val rows = types.invoke(store).map { binder.resolve(it, store) }
+//                     State.Success(rows)
+//               }
+
+
 
                 Log.i("FORM","STATE: EMIT SUCCESS")
                 emit(State.Success(emptyList()))
@@ -37,15 +61,8 @@ class Form<T : RowType>(state: SavedStateHandle) {
 
 //            source.de
 
-
-                //
-//            defaults?.invoke(store)
-//
-//            prepare?.invoke(store)
-
-//            val flows = listOf(refresh)
-
-
+                // listeners = Unit
+                // triggerables = refresh / triggers = emit(State.Success(rows))
             }
             .catch {
 //                emit(State.Error(it))
@@ -53,7 +70,8 @@ class Form<T : RowType>(state: SavedStateHandle) {
 
     fun setDataSource(source: DataSource<T>) {
         this.source = source
-        reset()
+
+//        reset()
     }
 
     fun refresh() {
