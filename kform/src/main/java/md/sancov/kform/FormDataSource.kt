@@ -4,24 +4,28 @@ import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.Flow
 import md.sancov.kform.binder.Binder
 
+typealias Lambda = suspend () -> Unit
+
 open class FormDataSource<Type: RowType>(state: SavedStateHandle) {
     internal val store: Store<Type> = Store(state)
+    internal var prepare: Lambda = { }
 
-    internal var listeners: Flow<Unit>? = null
+    internal lateinit var types: () -> Iterable<Type>
+    internal lateinit var binder: Binder<Type>
+
     internal var triggers: Flow<Unit>? = null
-    internal var binder: Binder<Type>? = null
-
 
     fun prepare(lambda: Store<Type>.() -> Unit) {
-// this.prepare =
+        this.prepare = { lambda(store) }
     }
 
-    fun types(lambda: Registry<Type>.() -> Iterable<Type>) {
-// this.types =
-    }
+    fun types(lambda: Registry<Type>.() -> Unit) {
+        val registry = store.registry
 
-    fun listeners(lambda: Flows<Type>.() -> Unit) {
-        this.listeners = Flows(store).apply(lambda).combine()
+        this.types = {
+            registry.apply(lambda)
+            registry.types
+        }
     }
 
     fun triggers(lambda: Flows<Type>.() -> Unit) {

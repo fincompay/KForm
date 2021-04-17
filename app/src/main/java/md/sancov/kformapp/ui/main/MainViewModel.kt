@@ -23,11 +23,6 @@ class MainDataSource(state: SavedStateHandle): FormDataSource<MainRow>(state) {
             MainRow.values().toList()
         }
 
-        listeners {
-            subscribe(MainRow.FirstName) { _, _ ->
-            }
-        }
-
         triggers {
             subscribe(MainRow.LastName, MainRow.FirstName) { _, _ ->
             }

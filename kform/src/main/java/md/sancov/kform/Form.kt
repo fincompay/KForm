@@ -26,7 +26,7 @@ class Form<T : RowType> {
 
             Log.i("FORM","ACTION: ON PREPARE")
 
-            source.prepare(this@Form)
+            source.prepare.invoke()
 
             Log.i("FORM","ACTION: BINDINGS")
 
@@ -40,12 +40,6 @@ class Form<T : RowType> {
 
                 State.Success(rows)
             }
-//
-//            val flows = combine(source.listeners ?: emptyFlow(), rows) { _, second ->
-//                Log.i("FORM","STATE: LISTENERS AND TRIGGERS")
-//
-//                second
-//            }
 
             emitAll(rows)
         }
@@ -55,7 +49,6 @@ class Form<T : RowType> {
 
     fun setDataSource(source: FormDataSource<T>) {
         this.source = source
-
 //        reset()
     }
 
