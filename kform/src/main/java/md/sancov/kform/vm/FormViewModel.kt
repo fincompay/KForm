@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import md.sancov.kform.DataSource
+import md.sancov.kform.FormDataSource
 import md.sancov.kform.Form
 import md.sancov.kform.RowType
 import md.sancov.kform.RowsState
@@ -33,7 +33,7 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
     }
 
-    fun<T: DataSource<Type>> set(dataSource: T, lambda: T.() -> Unit) {
+    fun<T: FormDataSource<Type>> set(dataSource: T, lambda: T.() -> Unit) {
         form.setDataSource(dataSource.apply(lambda))
     }
 

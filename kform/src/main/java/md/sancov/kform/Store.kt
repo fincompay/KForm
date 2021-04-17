@@ -5,10 +5,13 @@ import android.util.SparseArray
 import androidx.core.util.containsKey
 import androidx.core.util.set
 import androidx.lifecycle.SavedStateHandle
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
+import kotlin.reflect.KClass
 
+// default params
+
+@OptIn(ExperimentalCoroutinesApi::class)
 data class Store<Type: RowType>(private val state: SavedStateHandle) {
     companion object {
         private const val BUNDLE_VALUES = "STORE_VALUES"
@@ -36,12 +39,26 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
 //        }
     }
 
-    fun collect(vararg types: Type): Flow<Unit> {
-        val tmp = types
-            .map { flow<Any>(it) }
+    fun collect(vararg types: Type): Flow<Type> {
+        val flows = types
+            .map { type ->
+                flow<Any>(type).map { type }
+            }
             .toTypedArray()
 
-        return combine(*tmp) {}
+        return merge(*flows)
+    }
+
+    fun collect(clazz: KClass<out Type>): Flow<Type> {
+        val types = registry.types.filterIsInstance(clazz.java)
+
+        val flows = types
+            .map { type ->
+                flow<Any>(type).map { type  }
+            }
+            .toTypedArray()
+
+        return merge(*flows)
     }
 
     @Suppress("UNCHECKED_CAST")

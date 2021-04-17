@@ -7,7 +7,7 @@ class Registry<Type: RowType>(state: SavedStateHandle) {
 //        private const val BUNDLE_REGISTRATIONS = "BUNDLE_REGISTRY"
     }
 
-    private val registrations = mutableSetOf<Type>()
+    val types = mutableSetOf<Type>()
 
     init {
 //        state.get<Bundle>(BUNDLE_VALUES)?.let { bundle ->
@@ -29,14 +29,14 @@ class Registry<Type: RowType>(state: SavedStateHandle) {
     }
 
     fun getById(id: Int): Type? {
-        return registrations.firstOrNull { it.id == id }
+        return types.firstOrNull { it.id == id }
     }
 
     fun register(vararg types: Type) {
-        registrations.addAll(types)
+        this.types.addAll(types)
     }
 
     fun clear() {
-        registrations.clear()
+        types.clear()
     }
 }

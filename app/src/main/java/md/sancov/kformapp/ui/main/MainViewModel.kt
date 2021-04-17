@@ -2,7 +2,7 @@ package md.sancov.kformapp.ui.main
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.parcelize.Parcelize
-import md.sancov.kform.DataSource
+import md.sancov.kform.FormDataSource
 import md.sancov.kform.RowType
 import md.sancov.kform.binder.KeyBinder
 import md.sancov.kform.row.CheckboxRow
@@ -17,15 +17,19 @@ enum class MainRow: RowType {
     }
 }
 
-class MainDataSource(state: SavedStateHandle): DataSource<MainRow>(state) {
+class MainDataSource(state: SavedStateHandle): FormDataSource<MainRow>(state) {
     init {
+        types {
+            MainRow.values().toList()
+        }
+
         listeners {
-            subscribe(MainRow.FirstName) {
+            subscribe(MainRow.FirstName) { _, _ ->
             }
         }
 
         triggers {
-            subscribe(MainRow.LastName, MainRow.FirstName) {
+            subscribe(MainRow.LastName, MainRow.FirstName) { _, _ ->
             }
         }
 
@@ -36,11 +40,6 @@ class MainDataSource(state: SavedStateHandle): DataSource<MainRow>(state) {
             }
         }
     }
-
-    override suspend fun types(): Iterable<MainRow> {
-        return MainRow.values().toList()
-    }
-
 }
 
 class MainViewModel(state: SavedStateHandle) : FormViewModel<MainRow>() {

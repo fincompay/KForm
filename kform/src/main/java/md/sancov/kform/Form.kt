@@ -1,7 +1,6 @@
 package md.sancov.kform
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.*
 import md.sancov.kform.row.Row
 import md.sancov.utils.State
@@ -13,7 +12,7 @@ class Form<T : RowType> {
     private val reset = MutableStateFlow<Date?>(null)
     private val refresh = MutableStateFlow<Date?>(null)
 
-    private var source: DataSource<T>? = null
+    private var source: FormDataSource<T>? = null
 
     val items: Flow<RowsState> = reset
         .filterNotNull()
@@ -54,7 +53,7 @@ class Form<T : RowType> {
             emit(State.Error(it))
         }
 
-    fun setDataSource(source: DataSource<T>) {
+    fun setDataSource(source: FormDataSource<T>) {
         this.source = source
 
 //        reset()
