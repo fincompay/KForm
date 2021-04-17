@@ -1,32 +1,43 @@
 package md.sancov.kformapp.ui.main
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import md.sancov.kformapp.R
 
-class MainFragment : Fragment() {
+@AndroidEntryPoint
+class MainFragment : Fragment(R.layout.main_fragment) {
 
     companion object {
         fun newInstance() = MainFragment()
     }
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel by viewModels<MainViewModel>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+        val first = view.findViewById<AppCompatCheckBox>(R.id.checkbox_test_1)
+        first.isChecked = viewModel.value(MainRow.FirstName, false)
 
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        first.setOnCheckedChangeListener { _, isChecked ->
+            Log.v("CHECK", "VALUE $isChecked")
+            viewModel.set(MainRow.FirstName, isChecked)
+        }
 
+        val second = view.findViewById<AppCompatCheckBox>(R.id.checkbox_test_2)
+        second.isChecked = viewModel.value(MainRow.LastName, false)
+
+
+        second.setOnCheckedChangeListener { _, isChecked ->
+            Log.v("CHECK", "VALUE $isChecked")
+
+            viewModel.set(MainRow.LastName, isChecked)
+        }
 
         viewModel.rows.observe(viewLifecycleOwner) {
             Log.i("MAIN", "ROWS = $it")

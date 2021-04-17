@@ -8,35 +8,33 @@ import java.util.*
 
 typealias RowsState = State<List<Row>>
 
-class Form<T : RowType> {
+class Form<Type : RowType> {
     private val reset = MutableStateFlow<Date?>(null)
     private val refresh = MutableStateFlow<Date?>(null)
 
-    private var source: FormDataSource<T>? = null
+    lateinit var source: FormDataSource<Type>
 
     val items: Flow<RowsState> = reset
         .filterNotNull()
-        .mapNotNull { source }
-        .transform { source ->
+        .transform {
             Log.i("FORM","ACTION: RESET")
 
-            Log.i("FORM","STATE: EMIT LOADING")
 
+            Log.i("FORM","STATE: EMIT LOADING")
             emit(State.Loading<List<Row>>())
 
             Log.i("FORM","ACTION: ON PREPARE")
-
             source.prepare.invoke()
 
-            Log.i("FORM","ACTION: BINDINGS")
-
             val store = source.store
-            val binder = source.binder ?: throw Throwable("Binder isn't specified")
+            val binder = source.binder
 
             val rows = combine(listOfNotNull(source.triggers, refresh)) { _ ->
-                Log.i("FORM","STATE: EMIT SUCCESS")
+                val types = source.types()
 
-                val rows = source.types().map { binder.resolve(it, store) }
+                Log.i("FORM","STATE: EMIT SUCCESS types = $types")
+
+                val rows = types.map { binder.resolve(it, store) }
 
                 State.Success(rows)
             }
@@ -47,9 +45,9 @@ class Form<T : RowType> {
             emit(State.Error(it))
         }
 
-    fun setDataSource(source: FormDataSource<T>) {
+    fun setDataSource(source: FormDataSource<Type>) {
         this.source = source
-//        reset()
+        reset()
     }
 
     fun refresh() {
@@ -59,4 +57,24 @@ class Form<T : RowType> {
     fun reset() {
         reset.value = Date()
     }
+
+    fun<Value> get(type: Type, default: Value): Value {
+        return source.store.get(type, default)
+    }
+
+    operator fun<Value> get(type: Type): Value? {
+        return source.store[type]
+    }
+
+    operator fun<Value> set(type: Type, data: Value?) {
+        source.store[type] = data
+    }
+
+//    inline fun<reified Value> get(where: (Value) -> Boolean): Value? {
+//        return source.store.get(where)
+//    }
+//
+//    inline fun<reified Value> getAll(where: (Value) -> Boolean): List<Value> {
+//        return source.store.getAll(where)
+//    }
 }
