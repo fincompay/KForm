@@ -1,6 +1,7 @@
 package md.sancov.kform
 
 import android.util.Log
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import md.sancov.kform.row.Row
 import md.sancov.utils.State
@@ -14,6 +15,7 @@ class Form<Type : RowType> {
 
     lateinit var source: FormAdapter<Type>
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val items: Flow<RowsState> = reset
         .filterNotNull()
         .transform {
@@ -28,11 +30,11 @@ class Form<Type : RowType> {
             val store = source.store
             val binder = source.binder
 
-            val rows = combine(listOfNotNull(source.triggers, refresh)) { _ ->
+            val rows = merge(refresh.map { }, source.triggers).map {
                 val types = source.types()
 
                 Log.i("FORM","STATE: EMIT SUCCESS types = $types")
-
+//
                 val rows = types.map { binder.resolve(it, store) }
 
                 State.Success(rows)
