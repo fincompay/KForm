@@ -22,7 +22,7 @@ enum class MainRow: RowType {
 class MainAdapter(state: SavedStateHandle): FormAdapter<MainRow>(state) {
     init {
         types {
-            MainRow.values().toList()
+            MainRow.values()
         }
 
         triggers {

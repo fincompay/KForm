@@ -12,7 +12,7 @@ open class FormAdapter<Type: RowType>(state: SavedStateHandle) {
 
     internal var prepare: Lambda = { }
 
-    internal lateinit var types: () -> Iterable<Type>
+    internal lateinit var types: () -> Array<Type>
     internal lateinit var binder: Binder<Type>
 
     internal var triggers: Flow<Unit> = emptyFlow()
@@ -21,9 +21,17 @@ open class FormAdapter<Type: RowType>(state: SavedStateHandle) {
         this.prepare = { lambda(store) }
     }
 
-    fun types(lambda: Store<Type>.() -> Iterable<Type>) {
+    fun types(lambda: Store<Type>.() -> Array<Type>) {
         this.types = {
-            lambda(store)
+            val registry = store.registry
+
+            val types = lambda(store)
+
+            registry.clear()
+            registry.register(*types)
+
+
+            types
         }
     }
 
