@@ -10,8 +10,8 @@ class TypeBinder<Type: RowType>: Binder<Type> {
     private val bindings = mutableMapOf<Type, Binding<*, *, *, Type>>()
 
     fun<R: ValueRow<Params, Model>, Params, Model> bind(
-        vararg types: Type,
         factory: RowFactory<R, Params, Model>,
+        vararg types: Type,
         params: (Type, Store<Type>) -> Params,
     ) {
         val binding = Binding(factory, params)

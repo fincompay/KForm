@@ -19,7 +19,6 @@ class Form<Type : RowType> {
         .transform {
             Log.i("FORM","ACTION: RESET")
 
-
             Log.i("FORM","STATE: EMIT LOADING")
             emit(State.Loading<List<Row>>())
 
@@ -69,6 +68,7 @@ class Form<Type : RowType> {
     operator fun<Value> set(type: Type, data: Value?) {
         source.store[type] = data
     }
+
 
 //    inline fun<reified Value> get(where: (Value) -> Boolean): Value? {
 //        return source.store.get(where)

@@ -19,8 +19,8 @@ class KeyBinder<Type: RowType>: Binder<Type> {
     }
 
     fun<R: ValueRow<Params, Model>, Params, Model> bind(
-        clazz: KClass<out Type>,
         factory: RowFactory<R, Params, Model>,
+        clazz: KClass<out Type>,
         params: (Type, Store<Type>) -> Params
     ) {
         val key = clazz.qualifiedName ?: throw Throwable("Local or anonymous types are not allowed")

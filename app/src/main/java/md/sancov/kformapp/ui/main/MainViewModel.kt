@@ -32,7 +32,7 @@ class MainDataSource(state: SavedStateHandle): FormDataSource<MainRow>(state) {
 
 
         binder(KeyBinder()) {
-            bind(MainRow::class, CheckboxRow.Factory) { _, _ ->
+            bind(CheckboxRow.Factory, MainRow::class) { _, _ ->
                 CheckboxRow.Params()
             }
         }

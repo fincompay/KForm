@@ -2,18 +2,20 @@ package md.sancov.kform
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import md.sancov.kform.binder.Binder
 
 typealias Lambda = suspend () -> Unit
 
 open class FormDataSource<Type: RowType>(state: SavedStateHandle) {
     internal val store: Store<Type> = Store(state)
+
     internal var prepare: Lambda = { }
 
     internal lateinit var types: () -> Iterable<Type>
     internal lateinit var binder: Binder<Type>
 
-    internal var triggers: Flow<Unit>? = null
+    internal var triggers: Flow<Unit> = emptyFlow()
 
     fun prepare(lambda: Store<Type>.() -> Unit) {
         this.prepare = { lambda(store) }

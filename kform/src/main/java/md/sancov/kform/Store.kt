@@ -7,6 +7,8 @@ import androidx.core.util.*
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import md.sancov.kform.model.EnumModel
+import md.sancov.kform.model.toEnum
 import kotlin.Pair
 import kotlin.reflect.KClass
 
@@ -69,6 +71,14 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
 
         return tmp.filterIsInstance(Value::class.java).filter(where)
     }
+
+    inline fun<reified Value: Enum<Value>> enum(type: Type): Value? {
+        return get<EnumModel>(type)?.toEnum<Value>()
+    }
+    inline fun<reified Value: Enum<Value>> enum(type: Type, default: Value): Value {
+        return enum<Value>(type) ?: default
+    }
+
 
     fun contains(type: Type): Boolean {
         return flow<Any>(type).value != null
