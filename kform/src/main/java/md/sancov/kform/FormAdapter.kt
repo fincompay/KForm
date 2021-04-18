@@ -7,7 +7,7 @@ import md.sancov.kform.binder.Binder
 
 typealias Lambda = suspend () -> Unit
 
-open class FormDataSource<Type: RowType>(state: SavedStateHandle) {
+open class FormAdapter<Type: RowType>(state: SavedStateHandle) {
     internal val store: Store<Type> = Store(state)
 
     internal var prepare: Lambda = { }
@@ -21,12 +21,9 @@ open class FormDataSource<Type: RowType>(state: SavedStateHandle) {
         this.prepare = { lambda(store) }
     }
 
-    fun types(lambda: Registry<Type>.() -> Unit) {
-        val registry = store.registry
-
+    fun types(lambda: Store<Type>.() -> Iterable<Type>) {
         this.types = {
-            registry.apply(lambda)
-            registry.types
+            lambda(store)
         }
     }
 

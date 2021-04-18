@@ -3,7 +3,7 @@ package md.sancov.kformapp.ui.main
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.parcelize.Parcelize
-import md.sancov.kform.FormDataSource
+import md.sancov.kform.FormAdapter
 import md.sancov.kform.RowType
 import md.sancov.kform.binder.KeyBinder
 import md.sancov.kform.row.CheckboxRow
@@ -19,10 +19,10 @@ enum class MainRow: RowType {
     }
 }
 
-class MainDataSource(state: SavedStateHandle): FormDataSource<MainRow>(state) {
+class MainAdapter(state: SavedStateHandle): FormAdapter<MainRow>(state) {
     init {
         types {
-            register(*MainRow.values())
+            MainRow.values().toList()
         }
 
         triggers {
@@ -42,7 +42,7 @@ class MainDataSource(state: SavedStateHandle): FormDataSource<MainRow>(state) {
 @HiltViewModel
 class MainViewModel @Inject constructor(state: SavedStateHandle) : FormViewModel<MainRow>() {
     init {
-        set(MainDataSource(state)) {
+        set(MainAdapter(state)) {
 
         }
 

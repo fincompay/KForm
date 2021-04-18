@@ -12,7 +12,7 @@ class Form<Type : RowType> {
     private val reset = MutableStateFlow<Date?>(null)
     private val refresh = MutableStateFlow<Date?>(null)
 
-    lateinit var source: FormDataSource<Type>
+    lateinit var source: FormAdapter<Type>
 
     val items: Flow<RowsState> = reset
         .filterNotNull()
@@ -44,7 +44,7 @@ class Form<Type : RowType> {
             emit(State.Error(it))
         }
 
-    fun setDataSource(source: FormDataSource<Type>) {
+    fun setAdapter(source: FormAdapter<Type>) {
         this.source = source
         reset()
     }

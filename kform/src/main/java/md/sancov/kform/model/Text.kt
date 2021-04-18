@@ -10,12 +10,12 @@ sealed class Text: Parcelable {
     data class Resource(@StringRes val resourceId: Int, val multiline: Boolean = false): Text()
 
     @Parcelize
-    data class Characters(val sequence: CharSequence, val multiline: Boolean = false): Text()
+    data class Chars(val sequence: CharSequence, val multiline: Boolean = false): Text()
 
     fun resolve(ctx: Context): String {
         return when (this) {
             is Resource -> ctx.getString(resourceId)
-            is Characters -> sequence.toString()
+            is Chars -> sequence.toString()
         }
     }
 }

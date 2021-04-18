@@ -15,7 +15,7 @@ data class DateModel(val date: Date) : PickerRow.Model {
         get() = formatter.format(date)
 
     override val title: Text
-        get() = Text.Characters(id)
+        get() = Text.Chars(id)
 }
 
 
