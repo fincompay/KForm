@@ -17,7 +17,7 @@ open class FormAdapter<Type: RowType>(state: SavedStateHandle) {
 
     internal var triggers: Flow<Unit> = emptyFlow()
 
-    fun prepare(lambda: Store<Type>.() -> Unit) {
+    fun prepare(lambda: suspend Store<Type>.() -> Unit) {
         this.prepare = { lambda(store) }
     }
 

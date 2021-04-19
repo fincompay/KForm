@@ -48,14 +48,19 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
     }
 
     operator fun<Value> set(type: Type, value: Value?) {
-        Log.v("SET", "VALUES $value TO $type")
-
         flowByType<Value>(type).value = value
     }
 
     fun<Value> set(type: Type, block: (previous: Value?) -> Value?) {
         val data = block(get(type))
         set(type, data)
+    }
+
+    fun<Value> setIfNull(type: Type, value: Value?) {
+        val flow = flowByType<Value>(type)
+        if (flow.value == null) {
+            flow.value = value
+        }
     }
 
 
