@@ -17,9 +17,9 @@ sealed class Text: Parcelable {
         is Chars -> multiline
     }
 
-    fun resolve(ctx: Context): String {
+    fun resolve(ctx: Context): String? {
         return when (this) {
-            is Resource -> ctx.getString(resourceId)
+            is Resource -> if (resourceId == 0) null else ctx.getString(resourceId)
             is Chars -> sequence.toString()
         }
     }
