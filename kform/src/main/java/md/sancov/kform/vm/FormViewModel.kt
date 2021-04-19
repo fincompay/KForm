@@ -21,9 +21,7 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
 
     private val _rows = MutableStateFlow<RowsState?>(null)
 
-    val rows = _rows
-        .filterNotNull()
-        .asLiveData(Dispatchers.IO)
+    val rows = _rows.filterNotNull()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
