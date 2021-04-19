@@ -5,9 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import md.sancov.kform.Form
 import md.sancov.kform.FormAdapter
@@ -21,17 +19,26 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
 
     private val _rows = MutableStateFlow<RowsState?>(null)
 
-    val rows = _rows.filterNotNull()
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            form.rows.collect {
-                Log.v("FORM_VIEW_MODEL","COLLECT $it")
-
-                _rows.value = it
+    val rows = form
+            .rows
+            .onEach {
+                Log.v("GOT STATE", "STATE $it")
             }
-        }
-    }
+            .shareIn(viewModelScope, SharingStarted.Lazily)
+////
+////            _rows
+
+////            .filterNotNull()
+//
+//    init {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            form.rows.collect {
+//                Log.v("FORM_VIEW_MODEL","COLLECT $it")
+//
+//                _rows.value = it
+//            }
+//        }
+//    }
 
     fun<T: FormAdapter<Type>> set(adapter: T, lambda: T.() -> Unit = {}) {
         form.replaceAdapter(adapter.apply(lambda))
