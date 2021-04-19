@@ -16,7 +16,7 @@ class Form<Type : RowType> {
     private lateinit var adapter: FormAdapter<Type>
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val items: Flow<RowsState> = reload
+    val rows: Flow<RowsState> = reload
         .filterNotNull()
         .transform {
             emit(State.Loading<List<Row>>())
@@ -27,6 +27,8 @@ class Form<Type : RowType> {
             val binder = adapter.binder
 
             val rows = merge(refresh.map { }, adapter.triggers).map {
+                Log.v("FORM", "REFRESHING")
+
                 val rows = adapter.types().map { binder.resolve(it, store) }
 
                 State.Success(rows)

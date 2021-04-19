@@ -26,7 +26,7 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            form.items.collect {
+            form.rows.collect {
                 _rows.value = it
             }
         }
