@@ -8,9 +8,10 @@ import md.sancov.utils.format.text.TextContent
 import md.sancov.utils.format.text.TextFormat
 
 data class TextRow<Model>(
-    override val type: RowType,
-    override val params: Params<Model>,
-    override val flow: MutableStateFlow<Model?>,
+        override val type: RowType,
+        override val params: Params<Model>,
+        override val model: Model?,
+        val flow: MutableStateFlow<Model?>
 ) : ValueRow<TextRow.Params<Model>, Model> {
 
     data class Params<Model>(
@@ -38,7 +39,7 @@ data class TextRow<Model>(
             params: Params<Model>,
             flow: MutableStateFlow<Model?>
         ): TextRow<Model> {
-            return TextRow(type, params, flow)
+            return TextRow(type, params, flow.value, flow)
         }
     }
 }

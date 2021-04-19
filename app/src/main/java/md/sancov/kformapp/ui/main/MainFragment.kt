@@ -6,7 +6,9 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import md.sancov.kformapp.R
 
 @AndroidEntryPoint
@@ -39,7 +41,7 @@ class MainFragment : Fragment(R.layout.main_fragment) {
             viewModel.set(MainRow.LastName, isChecked)
         }
 
-        viewModel.rows.observe(viewLifecycleOwner) {
+        viewModel.rows.asLiveData(Dispatchers.IO).observe(viewLifecycleOwner) {
             Log.i("MAIN", "ROWS = $it")
         }
     }

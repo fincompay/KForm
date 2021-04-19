@@ -7,7 +7,8 @@ import md.sancov.kform.model.Text
 data class CheckboxRow(
     override val type: RowType,
     override val params: Params,
-    override val flow: MutableStateFlow<Boolean?>,
+    override val model: Boolean?,
+    val flow: MutableStateFlow<Boolean?>
 ): ValueRow<CheckboxRow.Params, Boolean> {
 
     data class Params(
@@ -21,7 +22,7 @@ data class CheckboxRow(
             params: Params,
             flow: MutableStateFlow<Boolean?>
         ): CheckboxRow {
-            return CheckboxRow(type, params, flow)
+            return CheckboxRow(type, params, flow.value, flow)
         }
     }
 }
