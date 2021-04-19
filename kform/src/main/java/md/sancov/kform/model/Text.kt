@@ -12,6 +12,11 @@ sealed class Text: Parcelable {
     @Parcelize
     data class Chars(val sequence: CharSequence, val multiline: Boolean = false): Text()
 
+    val isMultiline: Boolean get() = when (this) {
+        is Resource -> multiline
+        is Chars -> multiline
+    }
+
     fun resolve(ctx: Context): String {
         return when (this) {
             is Resource -> ctx.getString(resourceId)

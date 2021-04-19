@@ -12,6 +12,24 @@ data class PickerRow(
     override val flow: MutableStateFlow<Model?>
 ): ValueRow<PickerRow.Params, PickerRow.Model>, RowClickable {
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PickerRow) return false
+
+        if (type != other.type) return false
+        if (params != other.params) return false
+        if (flow.value != other.flow.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + params.hashCode()
+        result = 31 * result + flow.value.hashCode()
+        return result
+    }
+
     interface Model: Parcelable {
         val id: String
         val img: Img? get() = null
