@@ -40,7 +40,7 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
 
                 Log.d("STORE", "SAVE = $key value = $value")
 
-                pairs.add(Pair(key.toString(), value.toString()))
+                pairs.add(Pair(key.toString(), value))
             }
 
             bundleOf(*pairs.toTypedArray())
@@ -48,6 +48,8 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
     }
 
     operator fun<Value> set(type: Type, value: Value?) {
+        Log.v("SET", "VALUES $value TO $type")
+
         flowByType<Value>(type).value = value
     }
 
