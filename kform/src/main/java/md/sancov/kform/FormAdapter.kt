@@ -7,12 +7,12 @@ import md.sancov.kform.binder.Binder
 
 typealias Lambda = suspend () -> Unit
 
-open class FormAdapter<Type: RowType>(state: SavedStateHandle) {
+abstract class FormAdapter<Type: RowType>(state: SavedStateHandle) {
     internal val store: Store<Type> = Store(state)
-
+    
     internal var prepare: Lambda = { }
 
-    internal lateinit var types: () -> Array<Type>
+    internal lateinit var types: () -> List<Type>
     internal lateinit var binder: Binder<Type>
 
     internal var triggers: Flow<Unit> = emptyFlow()
@@ -23,15 +23,8 @@ open class FormAdapter<Type: RowType>(state: SavedStateHandle) {
 
     fun types(lambda: Store<Type>.() -> Array<Type>) {
         this.types = {
-            val registry = store.registry
-
             val types = lambda(store)
-
-            registry.clear()
-            registry.register(*types)
-
-
-            types
+            types.toList()
         }
     }
 

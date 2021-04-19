@@ -1,6 +1,7 @@
 package md.sancov.kform
 
 import android.os.Bundle
+import android.util.Log
 import android.util.SparseArray
 import androidx.core.os.bundleOf
 import androidx.core.util.*
@@ -18,21 +19,27 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
         private const val BUNDLE_VALUES = "STORE_VALUES"
     }
 
-    val registry = Registry<Type>()
     val flows = SparseArray<MutableStateFlow<Any?>>()
 
     init {
         state.get<Bundle>(BUNDLE_VALUES)?.let { bundle ->
             bundle.keySet().forEach {
-                val type = registry.getById(it.toInt()) ?: return@forEach
-                set(type, bundle[it])
+                val id = it.toIntOrNull() ?: return@forEach
+
+                Log.d("STORE", "RESTORE = $it with: ${bundle[it]}")
+
+                flowById<Any>(id).value = bundle[it]
             }
         }
 
         state.setSavedStateProvider(BUNDLE_VALUES) {
             val pairs = mutableListOf<Pair<String, Any?>>()
 
-            flows.forEach { key, value ->
+            flows.forEach { key, flow ->
+                val value = flow.value
+
+                Log.d("STORE", "SAVE = $key value = $value")
+
                 pairs.add(Pair(key.toString(), value.toString()))
             }
 
@@ -41,7 +48,7 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
     }
 
     operator fun<Value> set(type: Type, value: Value?) {
-        flow<Value>(type).value = value
+        flowByType<Value>(type).value = value
     }
 
     fun<Value> set(type: Type, block: (previous: Value?) -> Value?) {
@@ -51,7 +58,7 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
 
 
     operator fun<Value> get(type: Type): Value? {
-        return flow<Value>(type).value
+        return flowByType<Value>(type).value
     }
 
     fun<Value> get(type: Type, default: Value): Value {
@@ -79,15 +86,14 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
         return enum<Value>(type) ?: default
     }
 
-
     fun contains(type: Type): Boolean {
-        return flow<Any>(type).value != null
+        return flowByType<Any>(type).value != null
     }
 
     fun collect(vararg types: Type): Flow<Type> {
         val flows = types
             .map { type ->
-                flow<Any>(type).map { type }
+                flowByType<Any>(type).map { type }
             }
             .toTypedArray()
 
@@ -95,31 +101,34 @@ data class Store<Type: RowType>(private val state: SavedStateHandle) {
     }
 
     fun collect(clazz: KClass<out Type>): Flow<Type> {
-        val types = registry.types.filterIsInstance(clazz.java)
-
-        val flows = types
-            .map { type ->
-                flow<Any>(type).map { type  }
-            }
-            .toTypedArray()
-
-        return merge(*flows)
+        TODO()
+//        val types = types.filterIsInstance(clazz.java)
+//
+//        val flows = types
+//            .map { type ->
+//                flow<Any>(type).map { type  }
+//            }
+//            .toTypedArray()
+//
+//        return merge(*flows)
     }
 
-    fun reset() {
+    fun clear() {
         flows.keyIterator().forEach {
             flows[it].value = null
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun<Value> flow(type: Type): MutableStateFlow<Value?> {
-        val key = type.id
+    fun<Value> flowByType(type: Type): MutableStateFlow<Value?> {
+        return flowById(type.id)
+    }
 
-        if (!flows.containsKey(key)) {
-            flows[key] = MutableStateFlow(null)
+    @Suppress("UNCHECKED_CAST")
+    fun<Value> flowById(id: Int): MutableStateFlow<Value?> {
+        if (!flows.containsKey(id)) {
+            flows[id] = MutableStateFlow(null)
         }
 
-        return flows[key] as MutableStateFlow<Value?>
+        return flows[id] as MutableStateFlow<Value?>
     }
 }

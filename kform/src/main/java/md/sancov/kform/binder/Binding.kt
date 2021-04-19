@@ -11,6 +11,6 @@ data class Binding<T: ValueRow<Params, Model>, Params, Model, Type: RowType>(
 ) {
     fun instantiate(type: Type, store: Store<Type>): T {
         val params = params(type, store)
-        return factory.create(type, params, store.flow(type))
+        return factory.create(type, params, store.flowByType(type))
     }
 }

@@ -32,16 +32,16 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
     }
 
-    fun<T: FormAdapter<Type>> set(adapter: T, lambda: T.() -> Unit) {
-        form.setAdapter(adapter.apply(lambda))
+    fun<T: FormAdapter<Type>> set(adapter: T, lambda: T.() -> Unit = {}) {
+        form.replaceAdapter(adapter.apply(lambda))
     }
 
     fun refresh() {
         form.refresh()
     }
 
-    fun reset() {
-        form.reset()
+    fun reload(keepState: Boolean = true) {
+        form.reload(keepState)
     }
 
     fun<Value> set(type: Type, value: Value?) {
