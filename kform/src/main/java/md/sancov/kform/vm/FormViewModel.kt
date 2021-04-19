@@ -1,5 +1,6 @@
 package md.sancov.kform.vm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -27,6 +28,8 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
     init {
         viewModelScope.launch(Dispatchers.IO) {
             form.rows.collect {
+                Log.v("FORM_VIEW_MODEL","COLLECT $it")
+
                 _rows.value = it
             }
         }

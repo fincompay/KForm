@@ -31,6 +31,8 @@ class Form<Type : RowType> {
 
                 val rows = adapter.types().map { binder.resolve(it, store) }
 
+                Log.v("FORM","ON SUCCESS $rows")
+
                 State.Success(rows)
             }
 
