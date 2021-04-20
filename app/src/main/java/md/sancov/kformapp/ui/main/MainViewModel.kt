@@ -38,9 +38,6 @@ class MainAdapter(state: SavedStateHandle): Adapter<MainRow, KeyBinder<MainRow>>
 @HiltViewModel
 class MainViewModel @Inject constructor(state: SavedStateHandle) : FormViewModel<MainRow>() {
     init {
-        set(MainAdapter(state)) {
-
-        }
-
+        set(MainAdapter(state))
     }
 }

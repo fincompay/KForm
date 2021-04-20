@@ -7,15 +7,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import md.sancov.kform.Form
-import md.sancov.kform.Adapter
-import md.sancov.kform.RowType
-import md.sancov.kform.RowsState
+import md.sancov.kform.*
 import md.sancov.kform.model.EnumModel
 import md.sancov.kform.model.toEnum
 
 abstract class FormViewModel<Type: RowType>: ViewModel() {
-    private val form = Form<Type>()
+    private val form = Form()
 
     private val _rows = MutableStateFlow<RowsState?>(null)
 
@@ -29,8 +26,8 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
     }
 
-    fun<T: Adapter<Type>> set(adapter: T, lambda: T.() -> Unit = {}) {
-        form.replaceAdapter(adapter.apply(lambda))
+    fun<T: FormAdapter> set(adapter: T) {
+        form.replaceAdapter(adapter)
     }
 
     fun refresh() {
@@ -42,7 +39,7 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
     }
 
     fun<Value> set(type: Type, value: Value?) {
-        form[type] = value
+//        form[type] = value
     }
 
     fun<Value> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
@@ -53,17 +50,17 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
 
         form.also {
-            it[type] = value
-            it.refresh()
+//            it[type] = value
+//            it.refresh()
         }
     }
 
     fun<Value> value(type: Type): Value? {
-        return form[type]
+        return null//form[type]
     }
 
     fun<Value> value(type: Type, default: Value): Value {
-        return form[type] ?: default
+        return default//form[type] ?: default
     }
 
     inline fun<reified Value: Enum<Value>> enum(type: Type): Value? {
