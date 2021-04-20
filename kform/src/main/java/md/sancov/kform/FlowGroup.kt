@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlin.reflect.KClass
 
-data class Flows<Type: RowType>(private val store: Store<Type>) {
+data class FlowGroup<Type: RowType>(private val store: Store<Type>) {
     private val flows = mutableListOf<Flow<Unit>>()
 
     fun subscribe(vararg types: Type, onEach: suspend (type: Type, store: Store<Type>) -> Unit = { _, _ -> }) {

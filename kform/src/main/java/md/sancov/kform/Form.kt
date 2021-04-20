@@ -10,16 +10,21 @@ import java.util.*
 
 typealias RowsState = State<List<Row>>
 
-interface FormAdapter<Type: RowType> {
-    val types: () -> List<Type>
-    val binder: Binder<Type>
+interface FormAdapter {
+    val triggers: Flow<Unit>
+
+    suspend fun prepare() { }
+
+    suspend fun resolve(): List<Row>
+
+    fun clear()
 }
 
-class Form<Type : RowType> {
+class Form {
     private val reload = MutableStateFlow<Date?>(null)
     private val refresh = MutableStateFlow<Date?>(null)
 
-    private lateinit var adapter: Adapter<Type>
+    private lateinit var adapter: FormAdapter
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rows: Flow<RowsState> = reload
@@ -27,20 +32,9 @@ class Form<Type : RowType> {
         .transform {
             emit(State.Loading<List<Row>>())
 
-            adapter.prepare.invoke()
+            adapter.prepare()
 
-            val store = adapter.store
-            val binder = adapter.binder
-
-            val rows = merge(refresh.map { }, adapter.triggers).map {
-                Log.v("FORM", "REFRESHING")
-
-                val rows = adapter.types().map { binder.resolve(it, store) }
-
-                Log.v("FORM","ON SUCCESS $rows")
-
-                State.Success(rows)
-            }
+            val rows = merge(refresh.map { }, adapter.triggers).map { State.Success(adapter.resolve()) }
 
             emitAll(rows)
         }
@@ -48,7 +42,7 @@ class Form<Type : RowType> {
             emit(State.Error(it))
         }
 
-    fun replaceAdapter(source: Adapter<Type>) {
+    fun replaceAdapter(source: FormAdapter) {
         this.adapter = source
         reload()
     }
@@ -63,7 +57,7 @@ class Form<Type : RowType> {
         Log.v("FORM", "RELOAD")
 
         if (!keepState) {
-            adapter.store.clear()
+            adapter.clear()
         }
 
         reload.value = Date()
@@ -73,15 +67,15 @@ class Form<Type : RowType> {
         reload(false)
     }
 
-    fun<Value> get(type: Type, default: Value): Value {
-        return adapter.store.get(type, default)
-    }
-
-    operator fun<Value> get(type: Type): Value? {
-        return adapter.store[type]
-    }
-
-    operator fun<Value> set(type: Type, data: Value?) {
-        adapter.store[type] = data
-    }
+//    fun<Value> get(type: Type, default: Value): Value {
+//        return adapter.store.get(type, default)
+//    }
+//
+//    operator fun<Value> get(type: Type): Value? {
+//        return adapter.store[type]
+//    }
+//
+//    operator fun<Value> set(type: Type, data: Value?) {
+//        adapter.store[type] = data
+//    }
 }

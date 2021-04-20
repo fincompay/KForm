@@ -2,37 +2,34 @@ package md.sancov.kform
 
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import md.sancov.kform.binder.Binder
+import md.sancov.kform.row.Row
 
-typealias Lambda = suspend () -> Unit
+abstract class Adapter<Type: RowType, B: Binder<Type>>(
+        state: SavedStateHandle,
+        private val binder: B,
+): FormAdapter {
+    private val store: Store<Type> = Store(state)
 
-open class Adapter<Type: RowType>(state: SavedStateHandle) {
-    internal val store: Store<Type> = Store(state)
-    
-    internal var prepare: Lambda = { }
+    override val triggers: Flow<Unit>
+        get() = TODO("Not yet implemented")
 
-    internal lateinit var types: () -> List<Type>
-    internal lateinit var binder: Binder<Type>
-
-    internal var triggers: Flow<Unit> = emptyFlow()
-
-    fun prepare(lambda: suspend Store<Type>.() -> Unit) {
-        this.prepare = { lambda(store) }
-    }
-
-    fun types(lambda: Store<Type>.() -> Array<Type>) {
-        this.types = {
-            val types = lambda(store)
-            types.toList()
+    override suspend fun resolve(): List<Row> {
+        return types(store).map {
+            binder.resolve(it, store)
         }
     }
 
-    fun triggers(lambda: Flows<Type>.() -> Unit) {
-        this.triggers = Flows(store).apply(lambda).combine()
+    override fun clear() {
+        store.clear()
     }
 
-    fun<T: Binder<Type>> binder(binder: T, lambda: T.() -> Unit) {
-        this.binder = binder.also(lambda)
+    abstract fun setup(binder: B)
+
+    open fun triggers(group: FlowGroup<Type>) {
+    }
+
+    open fun types(store: Store<Type>): List<Type> {
+        return store.types.sortedBy { it.order }
     }
 }

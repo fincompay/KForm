@@ -5,7 +5,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.parcelize.Parcelize
 import md.sancov.kform.Adapter
 import md.sancov.kform.RowType
+import md.sancov.kform.Store
 import md.sancov.kform.binder.KeyBinder
+import md.sancov.kform.row.CheckboxRow
+import md.sancov.kform.row.PickerRow
 import md.sancov.kform.vm.FormViewModel
 import javax.inject.Inject
 
@@ -19,7 +22,6 @@ enum class MainRow: RowType {
 }
 
 sealed class DynamicRow: RowType {
-
     @Parcelize
     data class Short(override val order: Int) : DynamicRow()
 
@@ -27,32 +29,9 @@ sealed class DynamicRow: RowType {
     data class Detailed(override val order: Int) : DynamicRow()
 }
 
-class MainAdapter(state: SavedStateHandle): Adapter<MainRow>(state) {
-    init {
-        prepare {
-//            val types = mutableListOf<DynamicRow>()
-//
-//            for (i in 1..10) {
-//                val type = if (i % 2 == 0) {
-//                    DynamicRow.Short(i)
-//                } else {
-//                    DynamicRow.Detailed(i)
-//                }
-//                types.add(type)
-//            }
-//            register(*types.toTypedArray())
-        }
+class MainAdapter(state: SavedStateHandle): Adapter<MainRow, KeyBinder<MainRow>>(state, KeyBinder()) {
+    override fun setup(binder: KeyBinder<MainRow>) {
 
-
-        binder(KeyBinder()) {
-//            bind(CheckboxRow.Factory, DynamicRow.Short::class) { _, _ ->
-//                CheckboxRow.Params()
-//            }
-//
-//            bind(PickerRow.Factory, DynamicRow.Detailed::class) { _, _ ->
-//                PickerRow.Params()
-//            }
-        }
     }
 }
 
