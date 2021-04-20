@@ -7,7 +7,7 @@ import md.sancov.kform.binder.Binder
 
 typealias Lambda = suspend () -> Unit
 
-open class FormAdapter<Type: RowType>(state: SavedStateHandle) {
+open class Adapter<Type: RowType>(state: SavedStateHandle) {
     internal val store: Store<Type> = Store(state)
     
     internal var prepare: Lambda = { }

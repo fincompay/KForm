@@ -3,17 +3,23 @@ package md.sancov.kform
 import android.util.Log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import md.sancov.kform.binder.Binder
 import md.sancov.kform.row.Row
 import md.sancov.utils.State
 import java.util.*
 
 typealias RowsState = State<List<Row>>
 
+interface FormAdapter<Type: RowType> {
+    val types: () -> List<Type>
+    val binder: Binder<Type>
+}
+
 class Form<Type : RowType> {
     private val reload = MutableStateFlow<Date?>(null)
     private val refresh = MutableStateFlow<Date?>(null)
 
-    private lateinit var adapter: FormAdapter<Type>
+    private lateinit var adapter: Adapter<Type>
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rows: Flow<RowsState> = reload
@@ -42,7 +48,7 @@ class Form<Type : RowType> {
             emit(State.Error(it))
         }
 
-    fun replaceAdapter(source: FormAdapter<Type>) {
+    fun replaceAdapter(source: Adapter<Type>) {
         this.adapter = source
         reload()
     }
@@ -55,7 +61,6 @@ class Form<Type : RowType> {
 
     fun reload(keepState: Boolean = true) {
         Log.v("FORM", "RELOAD")
-
 
         if (!keepState) {
             adapter.store.clear()

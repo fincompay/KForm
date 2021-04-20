@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import md.sancov.kform.Form
-import md.sancov.kform.FormAdapter
+import md.sancov.kform.Adapter
 import md.sancov.kform.RowType
 import md.sancov.kform.RowsState
 import md.sancov.kform.model.EnumModel
@@ -29,7 +29,7 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
     }
 
-    fun<T: FormAdapter<Type>> set(adapter: T, lambda: T.() -> Unit = {}) {
+    fun<T: Adapter<Type>> set(adapter: T, lambda: T.() -> Unit = {}) {
         form.replaceAdapter(adapter.apply(lambda))
     }
 

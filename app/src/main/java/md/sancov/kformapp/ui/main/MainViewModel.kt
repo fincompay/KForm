@@ -2,28 +2,32 @@ package md.sancov.kformapp.ui.main
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import md.sancov.kform.FormAdapter
+import kotlinx.parcelize.Parcelize
+import md.sancov.kform.Adapter
 import md.sancov.kform.RowType
 import md.sancov.kform.binder.KeyBinder
-import md.sancov.kform.row.CheckboxRow
-import md.sancov.kform.row.PickerRow
 import md.sancov.kform.vm.FormViewModel
 import javax.inject.Inject
 
+@Parcelize
 enum class MainRow: RowType {
     LastName, FirstName;
 
-    override val id: Int get() {
+    override val order: Int get() {
         return ordinal
     }
 }
 
 sealed class DynamicRow: RowType {
-    data class Short(override val id: Int) : DynamicRow()
-    data class Detailed(override val id: Int) : DynamicRow()
+
+    @Parcelize
+    data class Short(override val order: Int) : DynamicRow()
+
+    @Parcelize
+    data class Detailed(override val order: Int) : DynamicRow()
 }
 
-class MainAdapter(state: SavedStateHandle): FormAdapter<MainRow>(state) {
+class MainAdapter(state: SavedStateHandle): Adapter<MainRow>(state) {
     init {
         prepare {
 //            val types = mutableListOf<DynamicRow>()

@@ -1,5 +1,11 @@
 package md.sancov.kform
 
-interface RowType {
-    val id: Int
+import android.os.Parcelable
+
+interface RowType: Parcelable {
+    val key: String get() {
+        return order.toString()
+    }
+
+    val order: Int
 }
