@@ -1,6 +1,7 @@
 package md.sancov.kform
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.parcelize.Parcelize
 import md.sancov.kform.model.EnumModel
 import md.sancov.kform.model.toEnum
 import kotlin.collections.set
@@ -29,18 +31,18 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
 
     init {
         state.get<Bundle>(KEY_BUNDLE)?.let { bundle ->
-            val values: List<Pair<Type, Any?>> = bundle.getParcelable(KEY_VALUES) ?: return@let
+            val values: Map<Type, Any?> = bundle.getParcelable(KEY_VALUES) ?: return@let
 
             values.forEach {
-                flowByType<Any>(it.first).value = it.second
+                flowByType<Any>(it.key).value = it.value
             }
         }
 
         state.setSavedStateProvider(KEY_BUNDLE) {
-            val pairs = mutableListOf<Pair<Type, Any?>>()
+            val pairs = mutableMapOf<Type, Any?>()
 
             flows.forEach { pair ->
-                pairs.add(Pair(pair.key, pair.value.value))
+                pairs[pair.key] = pair.value.value
             }
 
             bundleOf(KEY_VALUES to pairs)
