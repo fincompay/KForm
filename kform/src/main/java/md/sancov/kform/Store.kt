@@ -20,37 +20,39 @@ import kotlin.reflect.KClass
 data class Store<Type : RowType>(private val state: SavedStateHandle) {
     companion object {
         private const val KEY_BUNDLE = "STORE_BUNDLE"
-        private const val KEY_VALUES = "STORE_VALUES"
+        private const val KEY_PAIRS = "KEY_PAIRS"
     }
 
     val types get(): List<Type> {
         return flows.keys.toList()
     }
 
-    val flows = mutableMapOf<Type, MutableStateFlow<Any?>>()
+    val flows = mutableMapOf<Type, MutableStateFlow<Parcelable?>>()
 
     init {
         state.get<Bundle>(KEY_BUNDLE)?.let { bundle ->
-            val values: Map<Type, Any?> = bundle.getParcelable(KEY_VALUES) ?: return@let
+            val values: List<StorePair<Type, Parcelable>> = bundle.getParcelable(KEY_PAIRS) ?: return@let
+
+            Log.v("STORE", "RESTORE $values")
 
             values.forEach {
-                flowByType<Any>(it.key).value = it.value
+                flowByType<Parcelable>(it.type).value = it.value
             }
         }
 
         state.setSavedStateProvider(KEY_BUNDLE) {
-            val pairs = mutableMapOf<Type, Any?>()
-
-            flows.forEach { pair ->
-                pairs[pair.key] = pair.value.value
+            val pairs = flows.map {
+                StorePair(it.key, it.value.value)
             }
 
-            bundleOf(KEY_VALUES to pairs)
+            Log.v("STORE", "SAVING PAIRS $pairs")
+
+            bundleOf(KEY_PAIRS to pairs)
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun <Value> flowByType(type: Type): MutableStateFlow<Value?> {
+    internal fun <Value: Parcelable> flowByType(type: Type): MutableStateFlow<Value?> {
         if (!flows.containsKey(type)) {
             flows[type] = MutableStateFlow(null)
         }
@@ -58,38 +60,38 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         return flows[type] as MutableStateFlow<Value?>
     }
 
-    operator fun <Value> set(type: Type, value: Value?) {
+    operator fun <Value: Parcelable> set(type: Type, value: Value?) {
         flowByType<Value>(type).value = value
     }
 
-    operator fun <Value> get(type: Type): Value? {
+    operator fun <Value: Parcelable> get(type: Type): Value? {
         return flowByType<Value>(type).value
     }
 
-    fun <Value> set(type: Type, block: (previous: Value?) -> Value?) {
+    fun <Value: Parcelable> set(type: Type, block: (previous: Value?) -> Value?) {
         val data = block(get(type))
         set(type, data)
     }
 
-    fun <Value> setIfNull(type: Type, value: Value?) {
+    fun <Value: Parcelable> setIfNull(type: Type, value: Value?) {
         val flow = flowByType<Value>(type)
         if (flow.value == null) {
             flow.value = value
         }
     }
 
-    fun <Value> get(type: Type, default: Value): Value {
+    fun <Value: Parcelable> get(type: Type, default: Value): Value {
         return get(type) ?: default
     }
 
     fun contains(type: Type): Boolean {
-        return flowByType<Any>(type).value != null
+        return flowByType<Parcelable>(type).value != null
     }
 
     fun collect(vararg types: Type): Flow<Type> {
         val flows = types
             .map { type ->
-                flowByType<Any>(type).map { type }
+                flowByType<Parcelable>(type).map { type }
             }
             .toTypedArray()
 
@@ -101,7 +103,7 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
 
         val flows = types
             .map { type ->
-                flowByType<Any>(type).map { type }
+                flowByType<Parcelable>(type).map { type }
             }
             .toTypedArray()
 
@@ -114,11 +116,11 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         }
     }
 
-    inline fun <reified Value> get(where: (Value) -> Boolean): Value? {
+    inline fun <reified Value: Parcelable> get(where: (Value) -> Boolean): Value? {
         return getAll(where).firstOrNull()
     }
 
-    inline fun <reified Value> getAll(where: (Value) -> Boolean): List<Value> {
+    inline fun <reified Value: Parcelable> getAll(where: (Value) -> Boolean): List<Value> {
         val tmp = mutableListOf<Any>()
 
         flows.values.forEach { flow ->
@@ -128,11 +130,11 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         return tmp.filterIsInstance(Value::class.java).filter(where)
     }
 
-    inline fun <reified Value> getType(where: (Value) -> Boolean): Type? {
+    inline fun <reified Value: Parcelable> getType(where: (Value) -> Boolean): Type? {
         return getAllTypes(where).firstOrNull()
     }
 
-    inline fun <reified Value> getAllTypes(where: (Value) -> Boolean): List<Type> {
+    inline fun <reified Value: Parcelable> getAllTypes(where: (Value) -> Boolean): List<Type> {
         val types = mutableListOf<Type>()
 
         flows.forEach { entry ->
@@ -153,4 +155,7 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
     inline fun <reified Value : Enum<Value>> enum(type: Type, default: Value): Value {
         return enum<Value>(type) ?: default
     }
+
+    @Parcelize
+    private data class StorePair<Type: RowType, Value: Parcelable>(val type: Type, val value: Value?): Parcelable
 }

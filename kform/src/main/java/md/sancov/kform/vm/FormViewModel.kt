@@ -1,5 +1,6 @@
 package md.sancov.kform.vm
 
+import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -38,11 +39,11 @@ abstract class FormViewModel<Type: RowType>(state: SavedStateHandle): ViewModel(
         form.reload(keepState)
     }
 
-    fun<Value> set(type: Type, value: Value?) {
+    fun<Value: Parcelable> set(type: Type, value: Value?) {
         form.store[type] = value
     }
 
-    fun<Value> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
+    fun<Value: Parcelable> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
         val value = try {
             lambda()
         } catch (_: Throwable) {
