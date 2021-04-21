@@ -6,7 +6,7 @@ import md.sancov.kform.Store
 import md.sancov.kform.row.RowFactory
 import md.sancov.kform.row.ValueRow
 
-data class Binding<T: ValueRow<Params, Model>, Params, Model: Parcelable, Type: RowType>(
+data class Binding<T: ValueRow<Params, Model>, Params, Model, Type: RowType>(
     val factory: RowFactory<T, Params, Model>,
     val params: (Type, Store<Type>) -> Params,
 ) {

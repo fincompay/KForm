@@ -39,11 +39,11 @@ abstract class FormViewModel<Type: RowType>(state: SavedStateHandle): ViewModel(
         form.reload(keepState)
     }
 
-    fun<Value: Parcelable> set(type: Type, value: Value?) {
+    fun<Value> set(type: Type, value: Value?) {
         form.store[type] = value
     }
 
-    fun<Value: Parcelable> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
+    fun<Value> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
         val value = try {
             lambda()
         } catch (_: Throwable) {

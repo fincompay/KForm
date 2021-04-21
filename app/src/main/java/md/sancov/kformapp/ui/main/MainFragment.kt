@@ -9,8 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import md.sancov.kform.model.BoolModel
-import md.sancov.kform.model.asModel
 import md.sancov.kformapp.R
 
 @AndroidEntryPoint
@@ -30,7 +28,7 @@ class MainFragment : Fragment(R.layout.main_fragment) {
 
         first.setOnCheckedChangeListener { _, isChecked ->
             Log.v("CHECK", "VALUE $isChecked")
-            viewModel.set(MainRow.FirstName, BoolModel(isChecked))
+            viewModel.set(MainRow.FirstName, isChecked)
         }
 
         val second = view.findViewById<AppCompatCheckBox>(R.id.checkbox_test_2)
@@ -40,7 +38,7 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         second.setOnCheckedChangeListener { _, isChecked ->
             Log.v("CHECK", "VALUE $isChecked")
 
-            viewModel.set(MainRow.LastName, isChecked.asModel)
+            viewModel.set(MainRow.LastName, isChecked)
         }
 
         viewModel.rows.asLiveData(Dispatchers.IO).observe(viewLifecycleOwner) {

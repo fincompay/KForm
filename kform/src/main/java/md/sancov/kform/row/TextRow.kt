@@ -8,7 +8,7 @@ import md.sancov.utils.format.text.TextContent
 import md.sancov.utils.format.text.TextFormat
 import md.sancov.utils.model.Text
 
-data class TextRow<Model: Parcelable>(
+data class TextRow<Model>(
     override val type: RowType,
     override val params: Params<Model>,
     override val model: Model?,
@@ -34,7 +34,7 @@ data class TextRow<Model: Parcelable>(
         return params.format?.resolveString(ctx, flow.value)
     }
 
-    class Factory<Model: Parcelable> : RowFactory<TextRow<Model>, Params<Model>, Model> {
+    class Factory<Model> : RowFactory<TextRow<Model>, Params<Model>, Model> {
         override fun <Type : RowType> create(
             type: Type,
             params: Params<Model>,

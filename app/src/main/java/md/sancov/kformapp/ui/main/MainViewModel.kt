@@ -4,6 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.parcelize.Parcelize
 import md.sancov.kform.RowType
+import md.sancov.kform.TypeBinderAdapter
+import md.sancov.kform.binder.GroupBinder
+import md.sancov.kform.binder.TypeBinder
+import md.sancov.kform.row.CheckboxRow
 import md.sancov.kform.vm.FormViewModel
 import javax.inject.Inject
 
@@ -16,14 +20,18 @@ enum class MainRow: RowType {
     }
 }
 
-//class MainAdapter(state: SavedStateHandle): FormAdapter<MainRow, GroupBinder<MainRow>>(state, GroupBinder()) {
-//    override fun setup(binder: GroupBinder<MainRow>) {
-//
-//    }
-//}
+class MainAdapter: TypeBinderAdapter<MainRow>() {
+    override fun bindings(binder: TypeBinder<MainRow>) {
+        binder.bind(CheckboxRow.Factory, MainRow.FirstName, MainRow.LastName) { _, _ ->
+            CheckboxRow.Params()
+        }
+    }
+
+}
 
 @HiltViewModel
 class MainViewModel @Inject constructor(state: SavedStateHandle) : FormViewModel<MainRow>(state) {
     init {
+        set(MainAdapter())
     }
 }

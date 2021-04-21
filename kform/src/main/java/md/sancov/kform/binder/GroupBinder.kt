@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 class GroupBinder<Type: RowType>: Binder<Type> {
     private val bindings = mutableMapOf<String, Binding<*, *, *, Type>>()
 
-    fun<R: ValueRow<Params, Model>, Params, Model: Parcelable> bind(
+    fun<R: ValueRow<Params, Model>, Params, Model> bind(
         factory: RowFactory<R, Params, Model>,
         clazz: KClass<out Type>,
         params: (Type, Store<Type>) -> Params

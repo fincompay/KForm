@@ -5,12 +5,13 @@ import kotlinx.parcelize.Parcelize
 import md.sancov.kform.row.PickerRow
 import md.sancov.utils.model.Text
 import java.time.Instant
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Parcelize
-data class InstantModel(val date: Instant, val pattern: String = "dd.MM.yyyy") : PickerRow.Model {
+data class LocalDateModel(val date: LocalDate) : PickerRow.Model {
     @IgnoredOnParcel
-    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
     override val id: String get() {
         return formatter.format(date)
@@ -21,6 +22,6 @@ data class InstantModel(val date: Instant, val pattern: String = "dd.MM.yyyy") :
 }
 
 
-fun Instant.asModel(): InstantModel {
-    return InstantModel(this)
+fun LocalDate.asModel(): LocalDateModel {
+    return LocalDateModel(this)
 }
