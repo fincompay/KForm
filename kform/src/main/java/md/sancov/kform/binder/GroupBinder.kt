@@ -7,16 +7,8 @@ import md.sancov.kform.row.Row
 import md.sancov.kform.row.ValueRow
 import kotlin.reflect.KClass
 
-class KeyBinder<Type: RowType>: Binder<Type> {
+class GroupBinder<Type: RowType>: Binder<Type> {
     private val bindings = mutableMapOf<String, Binding<*, *, *, Type>>()
-
-    private fun<R: ValueRow<Params, Model>, Params, Model> bind(
-        key: String,
-        factory: RowFactory<R, Params, Model>,
-        params: (Type, Store<Type>) -> Params
-    ) {
-        bindings[key] = Binding(factory, params)
-    }
 
     fun<R: ValueRow<Params, Model>, Params, Model> bind(
         factory: RowFactory<R, Params, Model>,
@@ -24,7 +16,7 @@ class KeyBinder<Type: RowType>: Binder<Type> {
         params: (Type, Store<Type>) -> Params
     ) {
         val key = clazz.qualifiedName ?: throw Throwable("Local or anonymous types are not allowed")
-        bind(key, factory, params)
+        bindings[key] = Binding(factory, params)
     }
 
     override fun resolve(type: Type, store: Store<Type>): Row {

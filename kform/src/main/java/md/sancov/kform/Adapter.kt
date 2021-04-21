@@ -1,35 +1,31 @@
 package md.sancov.kform
 
-import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.Flow
 import md.sancov.kform.binder.Binder
+import md.sancov.kform.binder.GroupBinder
+import md.sancov.kform.binder.TypeBinder
 import md.sancov.kform.row.Row
 
-abstract class Adapter<Type: RowType, B: Binder<Type>>(
-        state: SavedStateHandle,
-        private val binder: B,
-): FormAdapter {
-    private val store: Store<Type> = Store(state)
+interface Adapter<Type: RowType> {
+    suspend fun prepare(store: Store<Type>) { }
 
-    override val triggers: Flow<Unit>
-        get() = TODO("Not yet implemented")
-
-    override suspend fun resolve(): List<Row> {
-        return types(store).map {
-            binder.resolve(it, store)
-        }
+    fun triggers(store: Store<Type>): List<Flow<Unit>> {
+        return emptyList()
     }
 
-    override fun clear() {
-        store.clear()
-    }
-
-    abstract fun setup(binder: B)
-
-    open fun triggers(group: FlowGroup<Type>) {
-    }
-
-    open fun types(store: Store<Type>): List<Type> {
+    fun types(store: Store<Type>): List<Type> {
         return store.types.sortedBy { it.order }
     }
+
+    fun resolve(store: Store<Type>): List<Row>
 }
+
+abstract class BinderAdapter<Type: RowType, B: Binder<Type>>(private val binder: B): Adapter<Type> {
+    override fun resolve(store: Store<Type>): List<Row> {
+        return types(store).map { binder.resolve(it, store) }
+    }
+}
+
+open class GroupBinderAdapter<Type: RowType>: BinderAdapter<Type, GroupBinder<Type>>(GroupBinder())
+
+open class TypeBinderAdapter<Type: RowType>: BinderAdapter<Type, TypeBinder<Type>>(TypeBinder())

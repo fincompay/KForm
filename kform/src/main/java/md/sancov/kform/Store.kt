@@ -1,7 +1,6 @@
 package md.sancov.kform
 
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
@@ -10,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.parcelize.Parcelize
 import md.sancov.kform.model.EnumModel
 import md.sancov.kform.model.toEnum
 import kotlin.collections.set
@@ -20,7 +18,7 @@ import kotlin.reflect.KClass
 data class Store<Type : RowType>(private val state: SavedStateHandle) {
     companion object {
         private const val KEY_BUNDLE = "STORE_BUNDLE"
-        private const val KEY_REGISTRY = "STORE_REGISTRY"
+        private const val KEY_VALUES = "STORE_VALUES"
     }
 
     val types get(): List<Type> {
@@ -31,11 +29,9 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
 
     init {
         state.get<Bundle>(KEY_BUNDLE)?.let { bundle ->
-            val registry: Registry<Type> = bundle.getParcelable(KEY_REGISTRY) ?: return@let
-            registry.values.forEach {
+            val values: List<Pair<Type, Any?>> = bundle.getParcelable(KEY_VALUES) ?: return@let
 
-                Log.d("STORE", "RESTORE = $it with: ${it.second}")
-
+            values.forEach {
                 flowByType<Any>(it.first).value = it.second
             }
         }
@@ -47,8 +43,17 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
                 pairs.add(Pair(pair.key, pair.value.value))
             }
 
-            bundleOf(KEY_REGISTRY to Registry(pairs))
+            bundleOf(KEY_VALUES to pairs)
         }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun <Value> flowByType(type: Type): MutableStateFlow<Value?> {
+        if (!flows.containsKey(type)) {
+            flows[type] = MutableStateFlow(null)
+        }
+
+        return flows[type] as MutableStateFlow<Value?>
     }
 
     operator fun <Value> set(type: Type, value: Value?) {
@@ -81,10 +86,10 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
 
     fun collect(vararg types: Type): Flow<Type> {
         val flows = types
-                .map { type ->
-                    flowByType<Any>(type).map { type }
-                }
-                .toTypedArray()
+            .map { type ->
+                flowByType<Any>(type).map { type }
+            }
+            .toTypedArray()
 
         return merge(*flows)
     }
@@ -93,10 +98,10 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         val types = flows.keys.filterIsInstance(clazz.java)
 
         val flows = types
-                .map { type ->
-                    flowByType<Any>(type).map { type }
-                }
-                .toTypedArray()
+            .map { type ->
+                flowByType<Any>(type).map { type }
+            }
+            .toTypedArray()
 
         return merge(*flows)
     }
@@ -105,15 +110,6 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         flows.forEach {
             it.value.value = null
         }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    internal fun <Value> flowByType(type: Type): MutableStateFlow<Value?> {
-        if (!flows.containsKey(type)) {
-            flows[type] = MutableStateFlow(null)
-        }
-
-        return flows[type] as MutableStateFlow<Value?>
     }
 
     inline fun <reified Value> get(where: (Value) -> Boolean): Value? {
@@ -133,6 +129,7 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
     inline fun <reified Value> getType(where: (Value) -> Boolean): Type? {
         return getAllTypes(where).firstOrNull()
     }
+
     inline fun <reified Value> getAllTypes(where: (Value) -> Boolean): List<Type> {
         val types = mutableListOf<Type>()
 
@@ -154,7 +151,4 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
     inline fun <reified Value : Enum<Value>> enum(type: Type, default: Value): Value {
         return enum<Value>(type) ?: default
     }
-
-    @Parcelize
-    private data class Registry<Type: RowType>(val values: List<Pair<Type, Any?>>): Parcelable
 }

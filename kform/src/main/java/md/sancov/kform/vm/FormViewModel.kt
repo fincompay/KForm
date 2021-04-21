@@ -1,5 +1,6 @@
 package md.sancov.kform.vm
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -8,11 +9,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import md.sancov.kform.*
-import md.sancov.kform.model.EnumModel
-import md.sancov.kform.model.toEnum
+import md.sancov.kform.BinderAdapter
 
-abstract class FormViewModel<Type: RowType>: ViewModel() {
-    private val form = Form()
+abstract class FormViewModel<Type: RowType>(state: SavedStateHandle): ViewModel() {
+    private val form = Form<Type>(state)
 
     private val _rows = MutableStateFlow<RowsState?>(null)
 
@@ -26,7 +26,7 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
     }
 
-    fun<T: FormAdapter> set(adapter: T) {
+    fun<T: Adapter<Type>> set(adapter: T) {
         form.replaceAdapter(adapter)
     }
 
@@ -39,7 +39,7 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
     }
 
     fun<Value> set(type: Type, value: Value?) {
-//        form[type] = value
+        form.store[type] = value
     }
 
     fun<Value> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
@@ -50,23 +50,23 @@ abstract class FormViewModel<Type: RowType>: ViewModel() {
         }
 
         form.also {
-//            it[type] = value
-//            it.refresh()
+            it.store[type] = value
+            it.refresh()
         }
     }
 
     fun<Value> value(type: Type): Value? {
-        return null//form[type]
+        return form.store[type]
     }
 
     fun<Value> value(type: Type, default: Value): Value {
-        return default//form[type] ?: default
+        return form.store[type] ?: default
     }
 
-    inline fun<reified Value: Enum<Value>> enum(type: Type): Value? {
-        return value<EnumModel>(type)?.toEnum<Value>()
-    }
-    inline fun<reified Value: Enum<Value>> enum(type: Type, default: Value): Value {
-        return enum<Value>(type) ?: default
-    }
+//    inline fun<reified Value: Enum<Value>> enum(type: Type): Value? {
+//        return form.store.enum<Value>(type)
+//    }
+//    inline fun<reified Value: Enum<Value>> enum(type: Type, default: Value): Value {
+//        return form.store.enum<Value>(type) ?: default
+//    }
 }

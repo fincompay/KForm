@@ -6,6 +6,7 @@ interface Row {
     val type: RowType
 
     override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
 }
 
 interface RowClickable: Row

@@ -1,30 +1,21 @@
 package md.sancov.kform
 
-import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import md.sancov.kform.binder.Binder
 import md.sancov.kform.row.Row
 import md.sancov.utils.State
 import java.util.*
 
 typealias RowsState = State<List<Row>>
 
-interface FormAdapter {
-    val triggers: Flow<Unit>
+class Form<Type: RowType>(state: SavedStateHandle) {
+    val store: Store<Type> = Store(state)
 
-    suspend fun prepare() { }
-
-    suspend fun resolve(): List<Row>
-
-    fun clear()
-}
-
-class Form {
     private val reload = MutableStateFlow<Date?>(null)
     private val refresh = MutableStateFlow<Date?>(null)
 
-    private lateinit var adapter: FormAdapter
+    private lateinit var adapter: Adapter<Type>
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rows: Flow<RowsState> = reload
@@ -32,9 +23,13 @@ class Form {
         .transform {
             emit(State.Loading<List<Row>>())
 
-            adapter.prepare()
+            adapter.prepare(store)
 
-            val rows = merge(refresh.map { }, adapter.triggers).map { State.Success(adapter.resolve()) }
+            val triggers = listOf(refresh.map { }, adapter.triggers(store).merge()).merge()
+
+            val rows = triggers.map {
+                State.Success(adapter.resolve(store))
+            }
 
             emitAll(rows)
         }
@@ -42,40 +37,23 @@ class Form {
             emit(State.Error(it))
         }
 
-    fun replaceAdapter(source: FormAdapter) {
+    fun replaceAdapter(source: Adapter<Type>) {
         this.adapter = source
         reload()
     }
 
     fun refresh() {
-        Log.v("FORM", "REFRESH")
-
         refresh.value = Date()
     }
 
     fun reload(keepState: Boolean = true) {
-        Log.v("FORM", "RELOAD")
-
         if (!keepState) {
-            adapter.clear()
+            store.clear()
         }
-
         reload.value = Date()
     }
 
     fun clear() {
         reload(false)
     }
-
-//    fun<Value> get(type: Type, default: Value): Value {
-//        return adapter.store.get(type, default)
-//    }
-//
-//    operator fun<Value> get(type: Type): Value? {
-//        return adapter.store[type]
-//    }
-//
-//    operator fun<Value> set(type: Type, data: Value?) {
-//        adapter.store[type] = data
-//    }
 }
