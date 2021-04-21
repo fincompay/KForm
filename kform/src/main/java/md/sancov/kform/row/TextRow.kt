@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import md.sancov.kform.RowType
 import md.sancov.utils.format.text.TextContent
 import md.sancov.utils.format.text.TextFormat
-import org.w3c.dom.Text
+import md.sancov.utils.model.Text
 
 data class TextRow<Model>(
     override val type: RowType,
