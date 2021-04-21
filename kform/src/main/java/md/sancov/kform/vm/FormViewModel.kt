@@ -1,6 +1,5 @@
 package md.sancov.kform.vm
 
-import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,11 +8,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import md.sancov.kform.*
-import md.sancov.kform.BinderAdapter
+import md.sancov.kform.Adapter
+import md.sancov.kform.Form
+import md.sancov.kform.RowType
+import md.sancov.kform.RowsState
 
 abstract class FormViewModel<Type: RowType>(state: SavedStateHandle): ViewModel() {
-    private val form = Form<Type>(state)
+    val form = Form<Type>(state)
 
     private val _rows = MutableStateFlow<RowsState?>(null)
 
@@ -56,18 +57,27 @@ abstract class FormViewModel<Type: RowType>(state: SavedStateHandle): ViewModel(
         }
     }
 
-    fun<Value> value(type: Type): Value? {
+    fun<Value> get(type: Type): Value? {
         return form.store[type]
     }
 
-    fun<Value> value(type: Type, default: Value): Value {
+    fun<Value> get(type: Type, default: Value): Value {
         return form.store[type] ?: default
     }
 
-//    inline fun<reified Value: Enum<Value>> enum(type: Type): Value? {
-//        return form.store.enum<Value>(type)
-//    }
-//    inline fun<reified Value: Enum<Value>> enum(type: Type, default: Value): Value {
-//        return form.store.enum<Value>(type) ?: default
-//    }
+    inline fun<reified Value> get(where: (Value) -> Boolean): Value? {
+        return form.store.get(where)
+    }
+
+    inline fun<reified Value> getAll(where: (Value) -> Boolean): List<Value> {
+        return form.store.getAll(where)
+    }
+
+    inline fun<reified Value: Enum<Value>> getEnum(type: Type): Value? {
+        return form.store.getEnum<Value>(type)
+    }
+
+    inline fun<reified Value: Enum<Value>> getEnum(type: Type, default: Value): Value {
+        return form.store.getEnum<Value>(type) ?: default
+    }
 }

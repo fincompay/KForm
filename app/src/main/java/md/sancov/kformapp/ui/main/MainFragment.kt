@@ -24,7 +24,7 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         super.onViewCreated(view, savedInstanceState)
 
         val first = view.findViewById<AppCompatCheckBox>(R.id.checkbox_test_1)
-        first.isChecked = viewModel.value(MainRow.FirstName, false)
+        first.isChecked = viewModel.get(MainRow.FirstName, false)
 
         first.setOnCheckedChangeListener { _, isChecked ->
             Log.v("CHECK", "VALUE $isChecked")
@@ -32,7 +32,7 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         }
 
         val second = view.findViewById<AppCompatCheckBox>(R.id.checkbox_test_2)
-        second.isChecked = viewModel.value(MainRow.LastName, false)
+        second.isChecked = viewModel.get(MainRow.LastName, false)
 
 
         second.setOnCheckedChangeListener { _, isChecked ->

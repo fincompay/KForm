@@ -1,8 +1,6 @@
 package md.sancov.kform
 
 import android.os.Bundle
-import android.os.Parcelable
-import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -10,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.parcelize.Parcelize
 import md.sancov.kform.model.EnumModel
 import md.sancov.kform.model.toEnum
 import kotlin.collections.set
@@ -151,11 +148,11 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         return types
     }
 
-    inline fun <reified Value : Enum<Value>> enum(type: Type): Value? {
+    inline fun <reified Value : Enum<Value>> getEnum(type: Type): Value? {
         return get<EnumModel>(type)?.toEnum<Value>()
     }
 
-    inline fun <reified Value : Enum<Value>> enum(type: Type, default: Value): Value {
-        return enum<Value>(type) ?: default
+    inline fun <reified Value : Enum<Value>> getEnum(type: Type, default: Value): Value {
+        return getEnum<Value>(type) ?: default
     }
 }
