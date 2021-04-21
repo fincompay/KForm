@@ -21,6 +21,10 @@ interface Adapter<Type: RowType> {
 }
 
 abstract class BinderAdapter<Type: RowType, B: Binder<Type>>(private val binder: B): Adapter<Type> {
+    init {
+        this.bindings(binder)
+    }
+
     override fun resolve(store: Store<Type>): List<Row> {
         return types(store).map { binder.resolve(it, store) }
     }
