@@ -24,8 +24,10 @@ abstract class BinderAdapter<Type: RowType, B: Binder<Type>>(private val binder:
     override fun resolve(store: Store<Type>): List<Row> {
         return types(store).map { binder.resolve(it, store) }
     }
+
+    abstract fun bindings(binder: B)
 }
 
-open class GroupBinderAdapter<Type: RowType>: BinderAdapter<Type, GroupBinder<Type>>(GroupBinder())
+abstract class GroupBinderAdapter<Type: RowType>: BinderAdapter<Type, GroupBinder<Type>>(GroupBinder())
 
-open class TypeBinderAdapter<Type: RowType>: BinderAdapter<Type, TypeBinder<Type>>(TypeBinder())
+abstract class TypeBinderAdapter<Type: RowType>: BinderAdapter<Type, TypeBinder<Type>>(TypeBinder())
