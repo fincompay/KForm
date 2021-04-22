@@ -9,7 +9,7 @@ import md.sancov.kform.row.Row
 interface Adapter<Type: RowType> {
     suspend fun prepare(store: Store<Type>) { }
 
-    fun triggers(store: Store<Type>): List<Flow<Unit>> {
+    fun collectors(store: Store<Type>): List<Flow<Unit>> {
         return emptyList()
     }
 

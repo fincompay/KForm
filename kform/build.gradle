@@ -63,5 +63,5 @@ dependencies {
 
     // Personal
 
-    implementation "com.github.denis-sancov:AndroidUtils:1.4.2"
+    implementation "com.github.denis-sancov:AndroidUtils:1.4.3"
 }

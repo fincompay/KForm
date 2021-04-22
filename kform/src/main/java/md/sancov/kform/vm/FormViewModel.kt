@@ -41,7 +41,10 @@ abstract class FormViewModel<Type: RowType>(state: SavedStateHandle): ViewModel(
     }
 
     fun<Value> set(type: Type, value: Value?) {
-        form.store[type] = value
+        form.also {
+            it.store[type] = value
+            it.refresh()
+        }
     }
 
     fun<Value> set(type: Type, lambda: suspend () -> Value?) = viewModelScope.launch(Dispatchers.IO) {
@@ -51,10 +54,7 @@ abstract class FormViewModel<Type: RowType>(state: SavedStateHandle): ViewModel(
             null
         }
 
-        form.also {
-            it.store[type] = value
-            it.refresh()
-        }
+        set(type, value)
     }
 
     fun<Value> get(type: Type): Value? {
