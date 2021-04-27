@@ -25,7 +25,7 @@ class Form<Type: RowType>(state: SavedStateHandle) {
 
             adapter.prepare(store)
 
-            val triggers = listOf(refresh.map { }, adapter.collectors(store).merge()).merge()
+            val triggers = listOf(refresh.map {  }, adapter.collectors(store).merge()).merge()
 
             val rows = triggers.map {
                 State.Success(adapter.resolve(store))

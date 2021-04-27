@@ -73,10 +73,10 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         set(type, data)
     }
 
-    fun <Value> setIfNull(type: Type, value: Value?) {
+    fun <Value> setIfNull(type: Type, value: () -> Value?) {
         val flow = flowByType<Value>(type)
         if (flow.value == null) {
-            flow.value = value
+            flow.value = value()
         }
     }
 
@@ -98,7 +98,7 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         return merge(*flows)
     }
 
-    fun collect(clazz: KClass<out Type>): Flow<Type> {
+    fun collectByClazz(clazz: KClass<out Type>): Flow<Type> {
         val types = flows.keys.filterIsInstance(clazz.java)
 
         val flows = types
