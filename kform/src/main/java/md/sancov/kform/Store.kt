@@ -73,6 +73,13 @@ data class Store<Type : RowType>(private val state: SavedStateHandle) {
         set(type, data)
     }
 
+    fun <Value> setIfNull(type: Type, value: Value?) {
+        val flow = flowByType<Value>(type)
+        if (flow.value == null) {
+            flow.value = value
+        }
+    }
+
     fun <Value> setIfNull(type: Type, value: () -> Value?) {
         val flow = flowByType<Value>(type)
         if (flow.value == null) {
