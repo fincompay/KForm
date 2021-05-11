@@ -7,7 +7,7 @@ plugins {
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion "30.0.1"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
@@ -58,10 +58,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$androidx_lifecycle_version"
 
-
     testImplementation "junit:junit:4.13.2"
 
     // Personal
 
-    implementation "com.github.denis-sancov:AndroidUtils:1.4.7"
+    implementation "com.github.denis-sancov:AndroidUtils:1.4.8"
 }

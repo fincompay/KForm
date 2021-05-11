@@ -16,8 +16,9 @@ data class CheckboxRow(
     }
 
     data class Params(
-        var text: Text? = null,
-        var textIsClickable: Boolean = false,
+        val text: Text? = null,
+        val interactive: Boolean = true,
+        val textIsClickable: Boolean = false,
     )
 
     object Factory : RowFactory<CheckboxRow, Params, Boolean> {
